@@ -1,0 +1,229 @@
+<!-- heading  -->
+<div class="text-center space-y-3 mb-[72px]">
+   <h2 data-ns-animate="" data-delay="0.3" class="text-accent max-w-[552px] mx-auto">Kapcsolat</h2>
+   <p data-ns-animate="" data-delay="0.4" class="text-accent/60 max-w-[692px] mx-auto">Helló! Ha már idáig eljutottál akkor te valamit akarsz tőlem. Na nézzük miben segíthetek!</p>
+</div>
+
+<div
+  class="flex lg:items-start flex-col justify-center items-center gap-10 lg:flex-row lg:gap-8 xl:gap-[70px]"
+>
+  <!-- contact info cards  -->
+  <div data-ns-animate data-delay="0.4" class="flex flex-col gap-8 md:flex-row md:gap-8">
+    <!-- contact info one  -->
+    <div
+      class="bg-secondary dark:bg-background-6 rounded-[20px] p-11 space-y-6 w-full md:w-[371px] text-center relative overflow-hidden"
+    >
+      <!-- bg overlay  -->
+      <figure
+        class="absolute select-none pointer-events-none size-[350px] overflow-hidden top-[-187px] left-[174px] -rotate-[78deg]"
+      >
+        <img
+          src="/images/ns-img-510.png"
+          alt="Decorative gradient overlay"
+          class="size-full object-cover"
+        />
+      </figure>
+      <figure class="size-10 overflow-hidden mx-auto">
+        <img
+          src="/images/icons/home.svg"
+          alt="Office location icon"
+          class="size-full object-cover"
+        />
+      </figure>
+
+      <div class="space-y-2.5">
+        <p class="text-heading-6 text-accent">Cím</p>
+        <p class="text-accent/60 contact-protected" data-contact-type="address">
+          <!-- Betöltés... -->
+        </p>
+      </div>
+    </div>
+
+    <!-- contact info two  -->
+    <div
+      class="card-item bg-secondary dark:bg-background-6 rounded-[20px] p-11 w-full md:w-[371px] text-center relative overflow-hidden"
+    >
+      <!-- bg overlay  -->
+      <figure
+        class="absolute size-[350px] select-none pointer-events-none overflow-hidden top-[-206px] left-[-36px] rotate-[62deg]"
+      >
+        <img
+          src="/images/ns-img-509.png"
+          alt="Decorative gradient overlay"
+          class="size-full object-cover"
+        />
+      </figure>
+
+      <div class="space-y-6">
+        <figure class="size-10 overflow-hidden mx-auto">
+          <img
+            src="/images/icons/mail-open.svg"
+            alt="Email icon"
+            class="size-full object-cover"
+          />
+        </figure>
+
+        <div class="space-y-2.5">
+          <p class="text-heading-6 text-accent">Email</p>
+          <p class="text-accent/60 contact-protected" data-contact-type="email">
+            <!-- Betöltés... -->
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- contact info three  -->
+    <div
+      class="bg-secondary dark:bg-background-6 rounded-[20px] p-11 w-full md:w-[371px] text-center relative overflow-hidden"
+    >
+      <!-- bg-overlay  -->
+      <figure
+        class="size-[450px] top-[-264px] left-[-255px] absolute select-none pointer-events-none"
+      >
+        <img src="/images/ns-img-498.png" alt="Decorative gradient overlay" />
+      </figure>
+
+      <div class="space-y-6">
+        <figure class="size-10 overflow-hidden mx-auto">
+          <img
+            src="/images/icons/phone-right.svg"
+            alt="Phone icon"
+            class="size-full object-cover"
+          />
+        </figure>
+
+        <div class="space-y-2.5">
+          <p class="text-heading-6 text-accent">Telefon</p>
+          <p class="text-accent/60 contact-protected" data-contact-type="phone">
+            <!-- Betöltés... -->
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GDPR elfogadás -->
+<div id="gdpr-consent-box" class="hidden max-w-[800px] mx-auto bg-background-8 dark:bg-background-6 rounded-2xl p-8 border-2 border-accent/20 mt-12">
+  <div class="space-y-6">
+    <h3 class="text-heading-5 text-accent text-center">Adatvédelmi tájékoztatás</h3>
+    <p class="text-accent/80 text-center">
+      Az elérhetőségi adatok megtekintéséhez kérjük, hogy fogadd el az adatvédelmi nyilatkozatot.
+    </p>
+    <div class="flex flex-col sm:flex-row items-start gap-3 justify-center">
+      <input
+        type="checkbox"
+        id="gdpr-checkbox"
+        class="mt-1 w-5 h-5 rounded border-accent/30 text-accent focus:ring-accent focus:ring-offset-0"
+      />
+      <label for="gdpr-checkbox" class="text-accent cursor-pointer">
+        Elolvastam, megértettem és elfogadom a
+        <a href="/gdpr" class="text-accent hover:underline font-semibold" target="_blank">GDPR</a>
+        oldalon leírtakat
+      </label>
+    </div>
+    <div class="text-center">
+      <button
+        id="gdpr-accept-btn"
+        disabled
+        class="px-8 py-3 bg-accent text-black rounded-full font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-accent/90 transition-all duration-200"
+      >
+        Elfogadom
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // LocalStorage kulcs
+  const GDPR_KEY = 'nextsaas_gdpr_accepted';
+
+  // Elemek
+  const consentBox = document.getElementById('gdpr-consent-box');
+  const checkbox = document.getElementById('gdpr-checkbox');
+  const acceptBtn = document.getElementById('gdpr-accept-btn');
+  const protectedElements = document.querySelectorAll('.contact-protected');
+
+  // Kapcsolati adatok betöltése API-ból
+  async function loadContactInfo() {
+    try {
+      const response = await fetch('/api/contact-info');
+      if (!response.ok) throw new Error('API hiba');
+
+      const data = await response.json();
+
+      // Adatok beillesztése
+      document.querySelector('[data-contact-type="address"]').textContent = data.address;
+
+      const emailEl = document.querySelector('[data-contact-type="email"]');
+      emailEl.innerHTML = `<a href="mailto:${data.email}" class="hover:text-accent transition-colors">${data.email}</a>`;
+
+      const phoneEl = document.querySelector('[data-contact-type="phone"]');
+      phoneEl.innerHTML = `<a href="tel:${data.phone}" class="hover:text-accent transition-colors">${data.phone}</a>`;
+
+    } catch (error) {
+      console.error('Kapcsolati adatok betöltési hiba:', error);
+      protectedElements.forEach(el => {
+        el.textContent = 'Betöltési hiba';
+      });
+    }
+  }
+
+  // Ellenőrizzük a LocalStorage-t
+  function checkGDPRConsent() {
+    const isAccepted = localStorage.getItem(GDPR_KEY) === 'true';
+
+    if (isAccepted) {
+      // Ha már elfogadta, betöltjük és megjelenítjük az adatokat
+      loadContactInfo().then(() => {
+        showContactInfo();
+      });
+    } else {
+      // Ha még nem fogadta el, rejtjük az adatokat
+      hideContactInfo();
+      consentBox.classList.remove('hidden');
+    }
+  }
+
+  // Elérhetőségek elrejtése
+  function hideContactInfo() {
+    protectedElements.forEach(el => {
+      el.style.filter = 'blur(8px)';
+      el.style.userSelect = 'none';
+      el.style.pointerEvents = 'none';
+      el.textContent = '•••••••••••';
+    });
+  }
+
+  // Elérhetőségek megjelenítése
+  function showContactInfo() {
+    protectedElements.forEach(el => {
+      el.style.filter = 'none';
+      el.style.userSelect = 'auto';
+      el.style.pointerEvents = 'auto';
+    });
+    consentBox.classList.add('hidden');
+  }
+
+  // Checkbox kezelés
+  checkbox.addEventListener('change', function() {
+    acceptBtn.disabled = !this.checked;
+  });
+
+  // Elfogadás gomb kezelés
+  acceptBtn.addEventListener('click', function() {
+    if (checkbox.checked) {
+      // Mentés LocalStorage-ba
+      localStorage.setItem(GDPR_KEY, 'true');
+      // Adatok betöltése és megjelenítése
+      loadContactInfo().then(() => {
+        showContactInfo();
+      });
+    }
+  });
+
+  // Inicializálás oldalbetöltéskor
+  checkGDPRConsent();
+})();
+</script>
