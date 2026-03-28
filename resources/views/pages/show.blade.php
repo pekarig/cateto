@@ -24,6 +24,9 @@
                         {{-- Web Services Grid: dinamikus komponens --}}
                         @if($block->key === 'web_services')
                             @include('components.web-services-grid', ['page' => $page])
+                        {{-- AI Tools Grid: dinamikus komponens --}}
+                        @elseif($block->key === 'ai_tools')
+                            @include('components.ai-tools-grid', ['page' => $page])
                         @else
                             {{-- Normál HTML blokk --}}
                             <div data-content-block="{{ $block->key }}">

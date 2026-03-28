@@ -53,4 +53,12 @@ class Page extends Model
     {
         return $this->hasMany(WebServiceItem::class)->orderBy('sort_order');
     }
+
+    /**
+     * Get the AI tool items for the page.
+     */
+    public function aiToolItems(): HasMany
+    {
+        return $this->hasMany(AiToolItem::class)->orderBy('sort_order');
+    }
 }

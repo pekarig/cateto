@@ -14,7 +14,7 @@ class PageController extends Controller
     public function home(): View
     {
         $page = Page::where('slug', 'bemutatkozas')
-            ->with(['contentBlocks', 'webServiceItems'])
+            ->with(['contentBlocks', 'webServiceItems', 'aiToolItems'])
             ->firstOrFail();
 
         return view('pages.show', compact('page'));
@@ -27,7 +27,7 @@ class PageController extends Controller
     {
         $page = Page::where('slug', $slug)
             ->where('is_published', true)
-            ->with(['contentBlocks', 'webServiceItems'])
+            ->with(['contentBlocks', 'webServiceItems', 'aiToolItems'])
             ->firstOrFail();
 
         return view('pages.show', compact('page'));
@@ -45,7 +45,7 @@ class PageController extends Controller
         $page = Page::where('slug', $childSlug)
             ->where('parent_id', $parent->id)
             ->where('is_published', true)
-            ->with(['contentBlocks', 'webServiceItems'])
+            ->with(['contentBlocks', 'webServiceItems', 'aiToolItems'])
             ->firstOrFail();
 
         return view('pages.show', compact('page', 'parent'));

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\WebServiceItemResource\Pages;
-use App\Models\WebServiceItem;
+use App\Filament\Resources\AiToolItemResource\Pages;
+use App\Models\AiToolItem;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Schemas\Schema;
@@ -11,17 +11,17 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
-class WebServiceItemResource extends Resource
+class AiToolItemResource extends Resource
 {
-    protected static ?string $model = WebServiceItem::class;
+    protected static ?string $model = AiToolItem::class;
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cpu-chip';
 
-    protected static ?string $navigationLabel = 'Web Service Dobozok';
+    protected static ?string $navigationLabel = 'AI Tool Dobozok';
 
-    protected static ?string $modelLabel = 'web service doboz';
+    protected static ?string $modelLabel = 'AI tool doboz';
 
-    protected static ?string $pluralModelLabel = 'web service dobozok';
+    protected static ?string $pluralModelLabel = 'AI tool dobozok';
 
     public static function form(Schema $schema): Schema
     {
@@ -31,32 +31,26 @@ class WebServiceItemResource extends Resource
                     ->label('Oldal')
                     ->relationship('page', 'title')
                     ->required()
-                    ->default(fn () => \App\Models\Page::where('slug', 'internetes-jelenlet')->first()?->id)
+                    ->default(fn () => \App\Models\Page::where('slug', 'ai-jovo')->first()?->id)
                     ->searchable()
                     ->preload(),
-
-                Forms\Components\TextInput::make('tagline')
-                    ->label('Tagline')
-                    ->required()
-                    ->maxLength(255)
-                    ->helperText('pl: Stack, Backend, Frontend'),
 
                 Forms\Components\FileUpload::make('icon_path')
                     ->label('Icon')
                     ->disk('public')
-                    ->directory('icons')
+                    ->directory('ai-icons')
                     ->acceptedFileTypes(['image/svg+xml', 'image/png'])
                     ->maxSize(2048)
-                    ->helperText('SVG vagy PNG ikon (max 2MB). Ha cserélni szeretnéd, töröld ki az X gombbal és tölts fel újat.')
+                    ->helperText('SVG vagy PNG ikon (max 2MB)')
                     ->previewable(false)
                     ->downloadable(false)
                     ->deletable(true),
 
-                Forms\Components\TextInput::make('heading')
-                    ->label('Heading')
+                Forms\Components\TextInput::make('name')
+                    ->label('AI Tool neve')
                     ->required()
                     ->maxLength(255)
-                    ->helperText('pl: Laravel, Vanilla JS'),
+                    ->helperText('pl: OpenAI, Anthropic, Gemini'),
 
                 Forms\Components\RichEditor::make('description')
                     ->label('Leírás')
@@ -65,22 +59,26 @@ class WebServiceItemResource extends Resource
                         'bold',
                         'italic',
                         'link',
-                        'bulletList',
-                        'orderedList',
                     ])
                     ->columnSpanFull(),
 
-                Forms\Components\Repeater::make('features')
-                    ->label('Felsorolás (feature lista)')
-                    ->schema([
-                        Forms\Components\TextInput::make('text')
-                            ->label('Elem')
-                            ->required(),
-                    ])
-                    ->columnSpanFull()
-                    ->addActionLabel('+ Új elem hozzáadása')
-                    ->defaultItems(0)
-                    ->collapsible(),
+                Forms\Components\TextInput::make('button_text')
+                    ->label('Gomb szöveg')
+                    ->default('Megnyitás')
+                    ->maxLength(255)
+                    ->helperText('pl: Megnyitás, Részletek, Tovább'),
+
+                Forms\Components\TextInput::make('button_url')
+                    ->label('Gomb URL')
+                    ->required()
+                    ->url()
+                    ->maxLength(255)
+                    ->helperText('Teljes URL (pl: https://chatgpt.com/)'),
+
+                Forms\Components\Checkbox::make('button_target_blank')
+                    ->label('Új ablakban nyíljon meg (_blank)')
+                    ->helperText('Pipáld be, ha új böngésző ablakban szeretnéd megnyitni')
+                    ->default(false),
 
                 Forms\Components\TextInput::make('sort_order')
                     ->label('Sorrend')
@@ -99,12 +97,8 @@ class WebServiceItemResource extends Resource
                     ->sortable()
                     ->searchable(),
 
-                Tables\Columns\TextColumn::make('tagline')
-                    ->label('Tagline')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('heading')
-                    ->label('Heading')
+                Tables\Columns\TextColumn::make('name')
+                    ->label('AI Tool neve')
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('icon_path')
@@ -114,6 +108,14 @@ class WebServiceItemResource extends Resource
                         : '-'
                     )
                     ->html(),
+
+                Tables\Columns\TextColumn::make('button_text')
+                    ->label('Gomb szöveg')
+                    ->searchable(),
+
+                Tables\Columns\IconColumn::make('button_target_blank')
+                    ->label('Új ablak')
+                    ->boolean(),
 
                 Tables\Columns\TextColumn::make('sort_order')
                     ->label('Sorrend')
@@ -151,9 +153,9 @@ class WebServiceItemResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListWebServiceItems::route('/'),
-            'create' => Pages\CreateWebServiceItem::route('/create'),
-            'edit' => Pages\EditWebServiceItem::route('/{record}/edit'),
+            'index' => Pages\ListAiToolItems::route('/'),
+            'create' => Pages\CreateAiToolItem::route('/create'),
+            'edit' => Pages\EditAiToolItem::route('/{record}/edit'),
         ];
     }
 }
