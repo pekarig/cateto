@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContentBlockController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Api\ContactInteractionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,9 @@ Route::get('/contact-info', function () {
         'phone' => '+351 936 750 011'
     ]);
 });
+
+// Contact interaction moved to web.php (needs session + CSRF)
+// Route::post('/contact-interaction', [ContactInteractionController::class, 'logInteraction']);
 
 // Publikus route-ok
 Route::get('/pages', [PageController::class, 'index']);
