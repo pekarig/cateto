@@ -21,9 +21,15 @@
             <div class="main-container">
                 <div class="space-y-16 md:space-y-20 lg:space-y-28">
                     @foreach($page->contentBlocks->sortBy('sort_order') as $block)
-                        <div data-content-block="{{ $block->key }}">
-                            {!! $block->content !!}
-                        </div>
+                        {{-- Web Services Grid: dinamikus komponens --}}
+                        @if($block->key === 'web_services')
+                            @include('components.web-services-grid', ['page' => $page])
+                        @else
+                            {{-- Normál HTML blokk --}}
+                            <div data-content-block="{{ $block->key }}">
+                                {!! $block->content !!}
+                            </div>
+                        @endif
                     @endforeach
                 </div>
             </div>

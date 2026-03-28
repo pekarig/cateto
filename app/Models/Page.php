@@ -45,4 +45,12 @@ class Page extends Model
     {
         return $this->hasMany(Page::class, 'parent_id')->orderBy('sort_order');
     }
+
+    /**
+     * Get the web service items for the page.
+     */
+    public function webServiceItems(): HasMany
+    {
+        return $this->hasMany(WebServiceItem::class)->orderBy('sort_order');
+    }
 }

@@ -8,15 +8,15 @@ use App\Models\ContentBlock;
 
 /**
  * ❌ ARCHIVÁLT SEEDER - NEM JAVASOLT FUTTATNI PRODUCTION KÖRNYEZETBEN!
- * 
+ *
  * Ez a seeder az eredeti tartalmakkal tölti fel az adatbázist.
  * A tartalmat az admin felületen (Filament) szerkeszd!
- * 
- * ⚠️ HA ÚJRAFUTTATNÁD: 
+ *
+ * ⚠️ HA ÚJRAFUTTATNÁD:
  *    - Előbb backup-elyél az adatbázist!
  *    - Az admin felületen módosított tartalmak felülírásra kerülnek!
  *    - Az eredeti HTML fájlok az _archive/original_content_blocks/ mappában vannak
- * 
+ *
  * Csak akkor futtatd, ha:
  * - Fresh adatbázist szeretnél (clean install)
  * - Vagy tisztán kell indítani
