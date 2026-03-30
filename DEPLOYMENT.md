@@ -446,6 +446,18 @@ chmod -R 775 bootstrap/cache
 - https://cateto.net/admin → Filament bejelentkezés működik?
 
 #### B) Hibaelhárítás
+
+Cashe-k törlése és optimalizálás
+
+cd /web/eglogic/backend
+
+/usr/bin/php83 artisan cache:clear
+/usr/bin/php83 artisan config:clear
+/usr/bin/php83 artisan route:clear
+/usr/bin/php83 artisan view:clear
+/usr/bin/php83 artisan optimize:clear
+/usr/bin/php83 artisan optimize
+
 Ha "500 Internal Server Error":
 ```bash
 # Nézd meg a Laravel log-ot
