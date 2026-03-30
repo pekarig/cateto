@@ -338,6 +338,8 @@ Mentsd: `Ctrl+O`, `Enter`, kilépés: `Ctrl+X`
 
 ### 🔟 FILAMENT ADMIN USER LÉTREHOZÁSA
 
+#### A) Új admin user létrehozása (ha még nincs)
+
 ```bash
 cd /web/eglogic/backend
 /usr/bin/php83 artisan make:filament-user
@@ -347,6 +349,48 @@ Vagy használd az AdminUserSeeder-t:
 ```bash
 /usr/bin/php83 artisan db:seed --class=AdminUserSeeder
 ```
+
+#### B) Meglévő admin user módosítása (email + jelszó csere)
+
+**Módszer 1: Tinker használata (ajánlott)**
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker
+```
+
+Majd a tinker promptban:
+```php
+$user = App\Models\User::where('email', 'admin@eglogic.hu')->first();
+$user->name = 'Admin';
+$user->email = 'uj-email@example.com';
+$user->password = Hash::make('uj-jelszo123');
+$user->save();
+exit
+```
+
+**Módszer 2: Egy parancs (gyorsabb)**
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker --execute="
+\$user = App\Models\User::where('email', 'admin@eglogic.hu')->first();
+\$user->email = 'uj-email@example.com';
+\$user->password = Hash::make('uj-jelszo123');
+\$user->save();
+echo 'Admin user frissítve!';
+"
+```
+
+**Módszer 3: SQL közvetlen (ha MySQL hozzáférésed van)**
+```bash
+mysql -u your_user -p your_database
+```
+```sql
+UPDATE users 
+SET email = 'uj-email@example.com', 
+    password = '$2y$12$...' -- A jelszót külön kell hash-elni!
+WHERE email = 'admin@eglogic.hu';
+```
+⚠️ **Fontos**: SQL-nél a jelszót előbb le kell hash-elni! Használd inkább a Tinker módszert.
 
 ---
 
