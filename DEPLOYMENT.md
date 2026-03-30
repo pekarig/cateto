@@ -352,7 +352,43 @@ Vagy használd az AdminUserSeeder-t:
 
 #### B) Meglévő admin user módosítása (email + jelszó csere)
 
-**Módszer 1: Tinker használata (ajánlott)**
+**⚠️ Először ellenőrizd, milyen user-ek vannak az adatbázisban:**
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker --execute="
+App\Models\User::all()->each(function(\$u) { 
+    echo 'ID: ' . \$u->id . ' | Email: ' . \$u->email . ' | Név: ' . \$u->name . PHP_EOL; 
+});
+"
+```
+
+**Módszer 1: ID alapján (legegyszerűbb - ha tudod az admin user ID-jét)**
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker --execute="
+\$user = App\Models\User::find(1);
+\$user->name = 'Admin';
+\$user->email = 'uj-email@example.com';
+\$user->password = Hash::make('uj-jelszo123');
+\$user->save();
+echo 'Admin user frissítve!' . PHP_EOL;
+"
+```
+
+**Módszer 2: Email alapján (ha tudod a jelenlegi email címet)**
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker --execute="
+\$user = App\Models\User::where('email', 'jelenlegi-email@example.com')->first();
+\$user->name = 'Admin';
+\$user->email = 'uj-email@example.com';
+\$user->password = Hash::make('uj-jelszo123');
+\$user->save();
+echo 'Admin user frissítve!' . PHP_EOL;
+"
+```
+
+**Módszer 3: Tinker interaktív használata**
 ```bash
 cd /web/eglogic/backend
 /usr/bin/php83 artisan tinker
@@ -360,7 +396,7 @@ cd /web/eglogic/backend
 
 Majd a tinker promptban:
 ```php
-$user = App\Models\User::where('email', 'admin@eglogic.hu')->first();
+$user = App\Models\User::find(1);  // vagy where('email', '...')->first()
 $user->name = 'Admin';
 $user->email = 'uj-email@example.com';
 $user->password = Hash::make('uj-jelszo123');
@@ -368,19 +404,7 @@ $user->save();
 exit
 ```
 
-**Módszer 2: Egy parancs (gyorsabb)**
-```bash
-cd /web/eglogic/backend
-/usr/bin/php83 artisan tinker --execute="
-\$user = App\Models\User::where('email', 'admin@eglogic.hu')->first();
-\$user->email = 'uj-email@example.com';
-\$user->password = Hash::make('uj-jelszo123');
-\$user->save();
-echo 'Admin user frissítve!';
-"
-```
-
-**Módszer 3: SQL közvetlen (ha MySQL hozzáférésed van)**
+**Módszer 4: SQL közvetlen (ha MySQL hozzáférésed van)**
 ```bash
 mysql -u your_user -p your_database
 ```
@@ -388,9 +412,11 @@ mysql -u your_user -p your_database
 UPDATE users 
 SET email = 'uj-email@example.com', 
     password = '$2y$12$...' -- A jelszót külön kell hash-elni!
-WHERE email = 'admin@eglogic.hu';
+WHERE id = 1;
 ```
-⚠️ **Fontos**: SQL-nél a jelszót előbb le kell hash-elni! Használd inkább a Tinker módszert.
+⚠️ **Fontos**: 
+- SQL-nél a jelszót előbb le kell hash-elni! Használd inkább a Tinker módszert.
+- Email cím keresésnél győződj meg róla, hogy létezik user azzal az email címmel!
 
 ---
 
