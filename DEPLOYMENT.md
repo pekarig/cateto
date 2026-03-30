@@ -146,11 +146,12 @@ LOG_LEVEL=error
 
 # === ADATBÁZIS (CSERÉLD KI!) ===
 DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
+DB_HOST=127.0.0.1  # Ha "No such file or directory" hiba: használj 127.0.0.1-et (NE localhost!)
 DB_PORT=3306
 DB_DATABASE=your_database_name
 DB_USERNAME=your_database_user
 DB_PASSWORD=your_database_password
+# DB_SOCKET=/var/run/mysqld/mysqld.sock  # Opcionális: ha localhost-ot használsz
 
 # === SESSION ===
 SESSION_DRIVER=database
@@ -516,6 +517,7 @@ FileZilla, WinSCP stb.
 - [ ] Composer dependencies telepítve (`/usr/bin/php83 ~/composer.phar install`)
 - [ ] .env fájl létrehozva és kitöltve (DB adatok!)
 - [ ] APP_KEY generálva (`/usr/bin/php83 artisan key:generate`)
+- [ ] **Adatbázis kapcsolat tesztelve** (lásd "Adatbázis kapcsolódás tesztelése" részt)
 - [ ] Storage/cache mappák jogosultságai (775)
 - [ ] Adatbázis migrálva (`/usr/bin/php83 artisan migrate`)
 - [ ] Storage link létrehozva
@@ -572,6 +574,47 @@ ls -la /web/eglogic/cateto/build
 
 # Ha hiányzik, másold át:
 cp -r /web/eglogic/backend/public/build /web/eglogic/cateto/
+```
+
+### "SQLSTATE[HY000] [2002] No such file or directory" - MySQL kapcsolódási hiba
+```bash
+# 1. Módszer: Használj 127.0.0.1-et localhost helyett
+nano /web/eglogic/backend/.env
+```
+Változtasd:
+```env
+DB_HOST=127.0.0.1  # NE localhost!
+```
+
+```bash
+# 2. Módszer: MySQL socket útvonal megadása (ha localhost-ot akarsz használni)
+# Találd meg a socket útvonalat:
+mysql_config --socket
+# vagy
+mysqladmin variables | grep socket
+
+# Majd add hozzá a .env-hez:
+# DB_SOCKET=/var/run/mysqld/mysqld.sock  # vagy /tmp/mysql.sock
+```
+
+```bash
+# 3. Cache clear (FONTOS a .env változtatás után!)
+cd /web/eglogic/backend
+/usr/bin/php83 artisan config:clear
+/usr/bin/php83 artisan cache:clear
+```
+
+### Adatbázis kapcsolódás tesztelése
+```bash
+cd /web/eglogic/backend
+/usr/bin/php83 artisan tinker --execute="
+try {
+    \DB::connection()->getPdo();
+    echo 'Kapcsolódás sikeres!' . PHP_EOL;
+} catch (\Exception \$e) {
+    echo 'Kapcsolódási hiba: ' . \$e->getMessage() . PHP_EOL;
+}
+"
 ```
 
 ---
