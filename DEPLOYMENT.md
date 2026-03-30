@@ -447,8 +447,8 @@ chmod -R 775 bootstrap/cache
 
 #### B) Hibaelhárítás
 
-Cashe-k törlése és optimalizálás
-
+## Cashe-k törlése és optimalizálás
+```bash
 cd /web/eglogic/backend
 
 /usr/bin/php83 artisan cache:clear
