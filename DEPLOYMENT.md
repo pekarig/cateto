@@ -1,0 +1,507 @@
+# Laravel 13 Cateto - Production Deployment Guide
+
+## 📋 Követelmények
+- PHP 8.3.0 vagy újabb ✅
+- Composer telepítve ✅
+- MySQL adatbázis
+- SSH hozzáférés ✅
+- Node.js 18+ (lokálisan build-hez)
+
+## 🗂️ Mappa struktúra a szerveren
+
+```
+/web/eglogic/
+├── backend/           ← Laravel app teljes forrása (Git clone ide)
+│   ├── app/
+│   ├── bootstrap/
+│   ├── config/
+│   ├── database/
+│   ├── public/
+│   ├── resources/
+│   ├── routes/
+│   ├── storage/
+│   ├── vendor/        ← Composer install ide
+│   ├── .env           ← Production .env
+│   ├── artisan
+│   └── composer.json
+│
+└── cateto/            ← PUBLIC document root (cateto.net domain)
+    ├── index.php      ← Módosított (lent részletezve)
+    ├── .htaccess      ← Másold az eredeti public/.htaccess-ből
+    ├── robots.txt
+    ├── assets/        ← Statikus CSS/JS
+    ├── build/         ← Vite build output
+    ├── fonts/
+    ├── images/
+    ├── storage/       ← Symlink a storage/app/public-hoz
+    │   └── (icons, ai-icons, stb.)
+    └── video/
+```
+
+---
+
+## 🚀 Telepítési lépések
+
+### 1️⃣ LOKÁLIS ELŐKÉSZÜLETEK
+
+#### A) Build végrehajtása
+```bash
+cd C:\xampp\htdocs\cateto
+npm install
+npm run build
+```
+Ez létrehozza a `public/build` mappát.
+
+#### B) Git commit ellenőrzése
+```bash
+git status
+git add -A
+git commit -m "Production build ready"
+git push origin main
+```
+
+---
+
+### 2️⃣ SZERVER - ALAPTELEPÍTÉS
+
+#### A) Bejelentkezés SSH-n
+```bash
+ssh your-username@your-server.com
+cd /web/eglogic
+```
+
+#### B) Laravel projekt klónozása
+```bash
+git clone https://github.com/pekarig/cateto.git backend
+cd backend
+```
+
+#### C) Composer dependencies telepítése
+```bash
+# Ha composer.phar van (mint nálad)
+php ~/composer.phar install --no-dev --optimize-autoloader
+
+# Vagy ha globális composer van
+composer install --no-dev --optimize-autoloader
+```
+
+⏱️ **Ez eltarthat néhány percig!**
+
+---
+
+### 3️⃣ .ENV FÁJL LÉTREHOZÁSA
+
+#### A) .env másolása és szerkesztése
+```bash
+cd /web/eglogic/backend
+cp .env.example .env
+nano .env
+```
+
+#### B) .env tartalom (PRODUCTION)
+
+```env
+# === ALAPBEÁLLÍTÁSOK ===
+APP_NAME="Cateto Portfolio"
+APP_ENV=production
+APP_KEY=base64:... # Majd a következő lépésben generálod!
+APP_DEBUG=false
+APP_URL=https://cateto.net
+
+APP_LOCALE=hu
+APP_FALLBACK_LOCALE=en
+APP_FAKER_LOCALE=hu_HU
+
+APP_MAINTENANCE_DRIVER=file
+
+BCRYPT_ROUNDS=12
+
+# === LOGGING ===
+LOG_CHANNEL=stack
+LOG_STACK=daily
+LOG_DEPRECATIONS_CHANNEL=null
+LOG_LEVEL=error
+
+# === ADATBÁZIS (CSERÉLD KI!) ===
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=your_database_name
+DB_USERNAME=your_database_user
+DB_PASSWORD=your_database_password
+
+# === SESSION ===
+SESSION_DRIVER=database
+SESSION_LIFETIME=120
+SESSION_ENCRYPT=false
+SESSION_PATH=/
+SESSION_DOMAIN=.cateto.net
+
+# === CACHE ===
+CACHE_STORE=database
+CACHE_PREFIX=cateto_
+
+# === QUEUE ===
+QUEUE_CONNECTION=database
+
+# === MAIL (opcionális - később) ===
+MAIL_MAILER=log
+MAIL_FROM_ADDRESS="hello@cateto.net"
+MAIL_FROM_NAME="${APP_NAME}"
+
+# === FILAMENT ===
+FILAMENT_PATH=admin
+```
+
+Mentsd: `Ctrl+O`, `Enter`, kilépés: `Ctrl+X`
+
+---
+
+### 4️⃣ APP_KEY GENERÁLÁS
+
+```bash
+cd /web/eglogic/backend
+php artisan key:generate
+```
+
+Ez automatikusan beírja az APP_KEY-t az .env-be.
+
+---
+
+### 5️⃣ STORAGE ÉS CACHE MAPPÁK BEÁLLÍTÁSA
+
+```bash
+cd /web/eglogic/backend
+
+# Jogosultságok beállítása
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+
+# Ha szükséges, storage almappák létrehozása
+mkdir -p storage/framework/sessions
+mkdir -p storage/framework/cache
+mkdir -p storage/framework/views
+mkdir -p storage/logs
+```
+
+---
+
+### 6️⃣ ADATBÁZIS MIGRÁLÁS
+
+```bash
+cd /web/eglogic/backend
+
+# Migráció futtatása (FIGYELEM: ez létrehozza a táblákat!)
+php artisan migrate --force
+
+# Cache build
+php artisan optimize
+php artisan route:cache
+php artisan config:cache
+php artisan view:cache
+php artisan filament:cache-components
+```
+
+---
+
+### 7️⃣ STORAGE LINK LÉTREHOZÁSA
+
+```bash
+cd /web/eglogic/backend
+php artisan storage:link
+```
+
+Ez a `backend/public/storage` → `backend/storage/app/public` symlink-et hoz létre.
+
+**AZONBAN** neked a `/web/eglogic/cateto/storage` → `/web/eglogic/backend/storage/app/public` symlink kell!
+
+```bash
+cd /web/eglogic/cateto
+ln -s ../backend/storage/app/public storage
+```
+
+---
+
+### 8️⃣ PUBLIC MAPPA TARTALOM MÁSOLÁSA
+
+#### A) Statikus fájlok másolása
+```bash
+cd /web/eglogic/backend/public
+
+# Másold át a cateto/ (document root) mappába az összes fájlt KIVÉVE index.php
+cp -r assets ../../../cateto/
+cp -r build ../../../cateto/
+cp -r fonts ../../../cateto/
+cp -r images ../../../cateto/
+cp -r video ../../../cateto/
+cp -r puzzle-images ../../../cateto/
+cp -r vendor ../../../cateto/
+cp .htaccess ../../../cateto/
+cp robots.txt ../../../cateto/
+cp favicon.ico ../../../cateto/ # ha van
+```
+
+#### B) .htaccess ellenőrzése
+```bash
+nano /web/eglogic/cateto/.htaccess
+```
+
+Tartalom (Laravel default):
+```apache
+<IfModule mod_negotiation.c>
+    Options -MultiViews -Indexes
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+```
+
+---
+
+### 9️⃣ INDEX.PHP MÓDOSÍTÁSA (KRITIKUS!)
+
+#### A) Új index.php létrehozása
+```bash
+nano /web/eglogic/cateto/index.php
+```
+
+#### B) index.php tartalom:
+
+```php
+<?php
+
+use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+
+define('LARAVEL_START', microtime(true));
+
+// Determine if the application is in maintenance mode...
+if (file_exists($maintenance = __DIR__.'/../backend/storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+
+// Register the Composer autoloader...
+require __DIR__.'/../backend/vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+/** @var Application $app */
+$app = require_once __DIR__.'/../backend/bootstrap/app.php';
+
+$app->handleRequest(Request::capture());
+```
+
+**Változások az eredetihez képest:**
+- `__DIR__.'/../storage'` → `__DIR__.'/../backend/storage'`
+- `__DIR__.'/../vendor'` → `__DIR__.'/../backend/vendor'`
+- `__DIR__.'/../bootstrap'` → `__DIR__.'/../backend/bootstrap'`
+
+Mentsd: `Ctrl+O`, `Enter`, kilépés: `Ctrl+X`
+
+---
+
+### 🔟 FILAMENT ADMIN USER LÉTREHOZÁSA
+
+```bash
+cd /web/eglogic/backend
+php artisan make:filament-user
+```
+
+Vagy használd az AdminUserSeeder-t:
+```bash
+php artisan db:seed --class=AdminUserSeeder
+```
+
+---
+
+### 1️⃣1️⃣ CACHE ÉS JOGOSULTSÁGOK FINOMÍTÁSA
+
+```bash
+cd /web/eglogic/backend
+
+# Laravel optimalizálás production-re
+php artisan optimize
+
+# Storage jogok újra
+chmod -R 775 storage
+chmod -R 775 bootstrap/cache
+
+# Filament cache
+php artisan filament:cache-components
+```
+
+---
+
+### 1️⃣2️⃣ TESZTELÉS
+
+#### A) Böngészőben
+- https://cateto.net → Főoldal betöltődik?
+- https://cateto.net/admin → Filament bejelentkezés működik?
+
+#### B) Hibaelhárítás
+Ha "500 Internal Server Error":
+```bash
+# Nézd meg a Laravel log-ot
+tail -f /web/eglogic/backend/storage/logs/laravel.log
+
+# Vagy a szerver hibalog-ot
+tail -f /var/log/apache2/error.log  # vagy nginx: /var/log/nginx/error.log
+```
+
+Gyakori hibák:
+- **Storage jogok**: `chmod -R 775 storage bootstrap/cache`
+- **.env nem jó**: Ellenőrizd az adatbázis adatokat
+- **APP_KEY hiányzik**: `php artisan key:generate`
+- **Cache régi**: `php artisan optimize:clear`
+
+---
+
+## 🔄 FRISSÍTÉS (Git pull után)
+
+```bash
+cd /web/eglogic/backend
+
+# 1. Git pull
+git pull origin main
+
+# 2. Composer update (ha composer.json változott)
+php ~/composer.phar install --no-dev --optimize-autoloader
+
+# 3. Migráció (ha új táblák vannak)
+php artisan migrate --force
+
+# 4. Cache clear + build
+php artisan optimize:clear
+php artisan optimize
+php artisan filament:cache-components
+
+# 5. Statikus fájlok (ha public/-ban változott valami)
+# Lokálisan: npm run build
+# Szerveren: másold át a build mappát
+cp -r public/build ../../../cateto/
+```
+
+---
+
+## 📊 KÉPEK/IKONOK FELTÖLTÉSE
+
+Az alábbi mappák tartalma:
+- `storage/app/public/icons/` (Web Service ikonok)
+- `storage/app/public/ai-icons/` (AI Tools ikonok)
+
+**Módszer 1: SCP (lokális gépről)**
+```bash
+# Windows (PowerShell vagy Git Bash)
+scp -r C:\xampp\htdocs\cateto\storage\app\public\icons user@server:/web/eglogic/backend/storage/app/public/
+scp -r C:\xampp\htdocs\cateto\storage\app\public\ai-icons user@server:/web/eglogic/backend/storage/app/public/
+```
+
+**Módszer 2: Git (ha nem túl nagy fájlok)**
+Commit-old lokálisan és pull-old a szerveren.
+
+**Módszer 3: FTP/SFTP kliens**
+FileZilla, WinSCP stb.
+
+---
+
+## ✅ CHECKLIST
+
+- [ ] PHP 8.3+ telepítve és beállítva
+- [ ] Composer dependencies telepítve (`composer install`)
+- [ ] .env fájl létrehozva és kitöltve (DB adatok!)
+- [ ] APP_KEY generálva (`php artisan key:generate`)
+- [ ] Storage/cache mappák jogosultságai (775)
+- [ ] Adatbázis migrálva (`php artisan migrate`)
+- [ ] Storage link létrehozva
+- [ ] Public fájlok átmásolva (assets, build, images stb.)
+- [ ] index.php módosítva (backend relatív útvonalakkal)
+- [ ] .htaccess átmásolva
+- [ ] Cache build-elve (`php artisan optimize`)
+- [ ] Filament admin user létrehozva
+- [ ] Ikonok/képek feltöltve
+- [ ] Teszt: https://cateto.net betöltődik
+- [ ] Teszt: https://cateto.net/admin működik
+
+---
+
+## 🆘 GYAKORI HIBÁK ÉS MEGOLDÁSOK
+
+### "500 Internal Server Error"
+```bash
+# 1. Laravel log ellenőrzése
+tail -50 /web/eglogic/backend/storage/logs/laravel.log
+
+# 2. Jogosultságok
+chmod -R 775 storage bootstrap/cache
+
+# 3. Cache törlés
+php artisan optimize:clear
+```
+
+### "Class not found" hibák
+```bash
+# Composer autoload újragenerálás
+php ~/composer.phar dump-autoload --optimize
+```
+
+### "No application encryption key has been specified"
+```bash
+php artisan key:generate
+```
+
+### Képek/ikonok nem jelennek meg
+```bash
+# Storage link ellenőrzése
+ls -la /web/eglogic/cateto/storage
+
+# Ha nem symlink, hozd létre:
+cd /web/eglogic/cateto
+ln -s ../backend/storage/app/public storage
+```
+
+### CSS/JS nem tölt be
+```bash
+# Ellenőrizd a build mappát
+ls -la /web/eglogic/cateto/build
+
+# Ha hiányzik, másold át:
+cp -r /web/eglogic/backend/public/build /web/eglogic/cateto/
+```
+
+---
+
+## 📌 FONTOS MEGJEGYZÉSEK
+
+1. **NE commit-old az .env fájlt** GitHubra (már a .gitignore-ban van)
+2. **Vendor mappát ne commit-old** (composer install készíti)
+3. **Node_modules-t ne tölts fel** (build output elég)
+4. **Storage mappát ne commit-old** (kivéve a .gitkeep fájlokat)
+5. **Debug módot kapcsold ki production-ben**: `APP_DEBUG=false`
+6. **HTTPS-t használj**: Let's Encrypt SSL tanúsítvány ajánlott
+
+---
+
+## 🎯 ÖSSZEFOGLALÁS
+
+1. **Lokál**: Build (`npm run build`) + Git push
+2. **Szerver**: Git clone → Composer install → .env + key:generate
+3. **Adatbázis**: Migrate + cache
+4. **Public**: Fájlok másolása + index.php módosítás
+5. **Storage**: Symlink + jogosultságok
+6. **Teszt**: cateto.net + admin működik
+
+🚀 **Sikeres telepítést!**
