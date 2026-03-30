@@ -1,8 +1,15 @@
 # Laravel 13 Cateto - Production Deployment Guide
 
+## ⚠️ FONTOS - PHP 8.3 Konfiguráció
+**Minden `php` parancs a `/usr/bin/php83` binárist használja!**
+
+A szerveren a PHP 8.3 elérési útja: `/usr/bin/php83`
+- Composer: `/usr/bin/php83 ~/composer.phar`
+- Artisan: `/usr/bin/php83 artisan`
+
 ## 📋 Követelmények
-- PHP 8.3.0 vagy újabb ✅
-- Composer telepítve ✅
+- PHP 8.3.0 vagy újabb ✅ (Elérési út: `/usr/bin/php83`)
+- Composer telepítve ✅ (~/composer.phar)
 - MySQL adatbázis
 - SSH hozzáférés ✅
 - Node.js 18+ (lokálisan build-hez)
@@ -79,7 +86,7 @@ cd backend
 #### C) Composer dependencies telepítése
 ```bash
 # Ha composer.phar van (mint nálad)
-php ~/composer.phar install --no-dev --optimize-autoloader
+/usr/bin/php83 ~/composer.phar install --no-dev --optimize-autoloader
 
 # Vagy ha globális composer van
 composer install --no-dev --optimize-autoloader
@@ -161,7 +168,7 @@ Mentsd: `Ctrl+O`, `Enter`, kilépés: `Ctrl+X`
 
 ```bash
 cd /web/eglogic/backend
-php artisan key:generate
+/usr/bin/php83 artisan key:generate
 ```
 
 Ez automatikusan beírja az APP_KEY-t az .env-be.
@@ -192,14 +199,14 @@ mkdir -p storage/logs
 cd /web/eglogic/backend
 
 # Migráció futtatása (FIGYELEM: ez létrehozza a táblákat!)
-php artisan migrate --force
+/usr/bin/php83 artisan migrate --force
 
 # Cache build
-php artisan optimize
-php artisan route:cache
-php artisan config:cache
-php artisan view:cache
-php artisan filament:cache-components
+/usr/bin/php83 artisan optimize
+/usr/bin/php83 artisan route:cache
+/usr/bin/php83 artisan config:cache
+/usr/bin/php83 artisan view:cache
+/usr/bin/php83 artisan filament:cache-components
 ```
 
 ---
@@ -208,7 +215,7 @@ php artisan filament:cache-components
 
 ```bash
 cd /web/eglogic/backend
-php artisan storage:link
+/usr/bin/php83 artisan storage:link
 ```
 
 Ez a `backend/public/storage` → `backend/storage/app/public` symlink-et hoz létre.
@@ -318,12 +325,12 @@ Mentsd: `Ctrl+O`, `Enter`, kilépés: `Ctrl+X`
 
 ```bash
 cd /web/eglogic/backend
-php artisan make:filament-user
+/usr/bin/php83 artisan make:filament-user
 ```
 
 Vagy használd az AdminUserSeeder-t:
 ```bash
-php artisan db:seed --class=AdminUserSeeder
+/usr/bin/php83 artisan db:seed --class=AdminUserSeeder
 ```
 
 ---
@@ -334,14 +341,14 @@ php artisan db:seed --class=AdminUserSeeder
 cd /web/eglogic/backend
 
 # Laravel optimalizálás production-re
-php artisan optimize
+/usr/bin/php83 artisan optimize
 
 # Storage jogok újra
 chmod -R 775 storage
 chmod -R 775 bootstrap/cache
 
 # Filament cache
-php artisan filament:cache-components
+/usr/bin/php83 artisan filament:cache-components
 ```
 
 ---
@@ -379,15 +386,15 @@ cd /web/eglogic/backend
 git pull origin main
 
 # 2. Composer update (ha composer.json változott)
-php ~/composer.phar install --no-dev --optimize-autoloader
+/usr/bin/php83 ~/composer.phar install --no-dev --optimize-autoloader
 
 # 3. Migráció (ha új táblák vannak)
-php artisan migrate --force
+/usr/bin/php83 artisan migrate --force
 
 # 4. Cache clear + build
-php artisan optimize:clear
-php artisan optimize
-php artisan filament:cache-components
+/usr/bin/php83 artisan optimize:clear
+/usr/bin/php83 artisan optimize
+/usr/bin/php83 artisan filament:cache-components
 
 # 5. Statikus fájlok (ha public/-ban változott valami)
 # Lokálisan: npm run build
@@ -420,17 +427,17 @@ FileZilla, WinSCP stb.
 
 ## ✅ CHECKLIST
 
-- [ ] PHP 8.3+ telepítve és beállítva
-- [ ] Composer dependencies telepítve (`composer install`)
+- [ ] PHP 8.3+ telepítve és beállítva (`/usr/bin/php83`)
+- [ ] Composer dependencies telepítve (`/usr/bin/php83 ~/composer.phar install`)
 - [ ] .env fájl létrehozva és kitöltve (DB adatok!)
-- [ ] APP_KEY generálva (`php artisan key:generate`)
+- [ ] APP_KEY generálva (`/usr/bin/php83 artisan key:generate`)
 - [ ] Storage/cache mappák jogosultságai (775)
-- [ ] Adatbázis migrálva (`php artisan migrate`)
+- [ ] Adatbázis migrálva (`/usr/bin/php83 artisan migrate`)
 - [ ] Storage link létrehozva
 - [ ] Public fájlok átmásolva (assets, build, images stb.)
 - [ ] index.php módosítva (backend relatív útvonalakkal)
 - [ ] .htaccess átmásolva
-- [ ] Cache build-elve (`php artisan optimize`)
+- [ ] Cache build-elve (`/usr/bin/php83 artisan optimize`)
 - [ ] Filament admin user létrehozva
 - [ ] Ikonok/képek feltöltve
 - [ ] Teszt: https://cateto.net betöltődik
@@ -449,18 +456,18 @@ tail -50 /web/eglogic/backend/storage/logs/laravel.log
 chmod -R 775 storage bootstrap/cache
 
 # 3. Cache törlés
-php artisan optimize:clear
+/usr/bin/php83 artisan optimize:clear
 ```
 
 ### "Class not found" hibák
 ```bash
 # Composer autoload újragenerálás
-php ~/composer.phar dump-autoload --optimize
+/usr/bin/php83 ~/composer.phar dump-autoload --optimize
 ```
 
 ### "No application encryption key has been specified"
 ```bash
-php artisan key:generate
+/usr/bin/php83 artisan key:generate
 ```
 
 ### Képek/ikonok nem jelennek meg
