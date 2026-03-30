@@ -83,12 +83,27 @@ git clone https://github.com/pekarig/cateto.git backend
 cd backend
 ```
 
-#### C) Composer dependencies telepítése
+#### C) Composer telepítése (ha még nincs)
+
+**⚠️ Ha már van ~/composer.phar, ugord át ezt a lépést!**
+
 ```bash
-# Ha composer.phar van (mint nálad)
+cd ~
+/usr/bin/php83 -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+/usr/bin/php83 composer-setup.php
+/usr/bin/php83 -r "unlink('composer-setup.php');"
+```
+
+Ez létrehozza a `~/composer.phar` fájlt.
+
+#### D) Composer dependencies telepítése
+```bash
+cd /web/eglogic/backend
+
+# composer.phar használata
 /usr/bin/php83 ~/composer.phar install --no-dev --optimize-autoloader
 
-# Vagy ha globális composer van
+# Vagy ha globális composer van a PATH-ban
 composer install --no-dev --optimize-autoloader
 ```
 
