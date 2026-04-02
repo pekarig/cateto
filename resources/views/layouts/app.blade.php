@@ -10,9 +10,7 @@
     <!-- SEO Meta Tags -->
     <meta name="description" content="@yield('description', 'Portfolio - Technológiai megoldások egyedi igényekre szabva')" />
     @hasSection('keywords')
-    @if(trim($__env->yieldContent('keywords')) !== '')
     <meta name="keywords" content="@yield('keywords')" />
-    @endif
     @endif
     <meta name="author" content="Cateto" />
     <meta name="robots" content="index, follow" />
@@ -47,34 +45,34 @@
     @hasSection('schema')
     @yield('schema')
     @else
+    @php
+    $websiteSchema = [
+        '@context'  => 'https://schema.org',
+        '@type'     => 'WebSite',
+        'name'      => config('seo.site_name'),
+        'url'       => config('seo.site_url'),
+        'description' => config('seo.site_description'),
+        'inLanguage'  => 'hu-HU',
+        'publisher'   => [
+            '@type' => 'Organization',
+            'name'  => config('seo.organization.name'),
+            'url'   => config('seo.site_url'),
+            'logo'  => [
+                '@type'  => 'ImageObject',
+                'url'    => asset(config('seo.organization.logo')),
+                'width'  => 600,
+                'height' => 600,
+            ],
+        ],
+        'potentialAction' => [
+            '@type'       => 'SearchAction',
+            'target'      => ['@type' => 'EntryPoint', 'urlTemplate' => config('seo.site_url') . '?q={search_term_string}'],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
+    @endphp
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "{{ config('seo.site_name') }}",
-        "url": "{{ config('seo.site_url') }}",
-        "description": "{{ config('seo.site_description') }}",
-        "inLanguage": "hu-HU",
-        "publisher": {
-            "@type": "Organization",
-            "name": "{{ config('seo.organization.name') }}",
-            "url": "{{ config('seo.site_url') }}",
-            "logo": {
-                "@type": "ImageObject",
-                "url": "{{ asset(config('seo.organization.logo')) }}",
-                "width": 600,
-                "height": 600
-            }
-        },
-        "potentialAction": {
-            "@type": "SearchAction",
-            "target": {
-                "@type": "EntryPoint",
-                "urlTemplate": "{{ config('seo.site_url') }}?q={search_term_string}"
-            },
-            "query-input": "required name=search_term_string"
-        }
-    }
+    {!! json_encode($websiteSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
     @endif
 
