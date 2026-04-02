@@ -116,9 +116,61 @@ Search Console → Settings → robots.txt Tester
    - ✅ Author, Robots
 
 4. **Structured Data** (Schema.org JSON-LD):
-   - ✅ WebSite schema (főoldal)
-   - ✅ WebPage schema (aloldalak)
-   - ✅ Organization info
+   - ✅ **Organization schema** - cégadatok, kapcsolat, social media
+   - ✅ **WebSite schema** - alap weboldal info
+   - ✅ **WebPage schema** - oldal specifikus adatok
+   - ✅ **Breadcrumb schema** - navigációs útvonal (szülő-gyerek oldalakon)
+   - ✅ **Service schema** - webszolgáltatásokhoz
+   - ✅ **SoftwareApplication schema** - AI eszközökhöz
+   - ✅ **ItemList schema** - szolgáltatások/eszközök listázása
+
+5. **SEO Config fájl** - `config/seo.php`
+   - Központi konfiguráció
+   - Environment változók támogatása
+   - Könnyen bővíthető
+
+---
+
+## ⚙️ SEO Konfiguráció Használata
+
+### 1. Environment változók (.env):
+```env
+# Site alapadatok
+SEO_SITE_NAME="Cateto"
+SEO_SITE_DESCRIPTION="Portfolio - Technológiai megoldások egyedi igényekre szabva"
+
+# Organization
+ORG_NAME="Cateto"
+ORG_LEGAL_NAME="Cateto Kft."
+ORG_DESCRIPTION="Webes megoldások, AI integráció és grafikai szolgáltatások"
+ORG_FOUNDED=1999
+ORG_EMAIL="info@cateto.hu"
+ORG_PHONE="+36 1 234 5678"
+
+# Address
+ORG_ADDRESS_STREET="Példa utca 123."
+ORG_ADDRESS_CITY="Budapest"
+ORG_ADDRESS_POSTAL="1234"
+ORG_ADDRESS_COUNTRY="HU"
+
+# Social Media
+SOCIAL_FACEBOOK="https://facebook.com/cateto"
+SOCIAL_LINKEDIN="https://linkedin.com/company/cateto"
+SOCIAL_GITHUB="https://github.com/cateto"
+
+# Google Services
+GOOGLE_ANALYTICS_ID="G-XXXXXXXXXX"
+GOOGLE_TAG_MANAGER_ID="GTM-XXXXXXX"
+GOOGLE_SITE_VERIFICATION="your-verification-code"
+```
+
+### 2. Config fájl használata:
+```php
+// Bárhol a kódban:
+config('seo.organization.name')
+config('seo.organization.email')
+config('seo.google.analytics_id')
+```
 
 ---
 

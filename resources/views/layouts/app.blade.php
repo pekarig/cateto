@@ -39,6 +39,9 @@
     @endif
 
     <!-- Structured Data (Schema.org JSON-LD) -->
+    {{-- Organization Schema (Global) --}}
+    @include('components.structured-data.organization')
+
     @hasSection('schema')
     @yield('schema')
     @else
@@ -46,12 +49,27 @@
     {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "Cateto",
-        "url": "{{ url('/') }}",
-        "description": "Portfolio - Technológiai megoldások egyedi igényekre szabva",
+        "name": "{{ config('seo.site_name') }}",
+        "url": "{{ config('seo.site_url') }}",
+        "description": "{{ config('seo.site_description') }}",
+        "inLanguage": "hu-HU",
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ config('seo.organization.name') }}",
+            "url": "{{ config('seo.site_url') }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ asset(config('seo.organization.logo')) }}",
+                "width": 600,
+                "height": 600
+            }
+        },
         "potentialAction": {
             "@type": "SearchAction",
-            "target": "{{ url('/') }}?q={search_term_string}",
+            "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "{{ config('seo.site_url') }}?q={search_term_string}"
+            },
             "query-input": "required name=search_term_string"
         }
     }
