@@ -504,6 +504,154 @@ cp -r public/build ../../../cateto/
 
 ---
 
+## ⚠️ GIT KONFLIKTUSOK KEZELÉSE
+
+### Probléma: "Your local changes would be overwritten by merge"
+
+```bash
+eglogic@s15:~/backend$ git pull origin main
+error: Your local changes to the following files would be overwritten by merge:
+       resources/views/components/footer.blade.php
+       resources/views/components/header.blade.php
+Please, commit your changes or stash them before you can merge.
+Aborting
+```
+
+### Megoldás 1: Változások ellenőrzése és eldobása (AJÁNLOTT ha nem módosítottál semmit)
+
+```bash
+cd ~/backend
+
+# 1. Nézd meg, mi a különbség (opcionális)
+git diff resources/views/components/footer.blade.php | head -20
+git diff resources/views/components/header.blade.php | head -20
+
+# 2. Ha csak whitespace/line ending különbségek (nem fontos):
+# Változások eldobása
+git checkout -- resources/views/components/footer.blade.php
+git checkout -- resources/views/components/header.blade.php
+
+# 3. Most már megy a pull
+git pull origin main
+
+# 4. Cache tisztítás
+/usr/bin/php83 artisan config:cache
+/usr/bin/php83 artisan view:clear
+```
+
+### Megoldás 2: Változások mentése (stash)
+
+Ha bizonytalan vagy, hogy fontosak-e a változások:
+
+```bash
+cd ~/backend
+
+# 1. Lokális változások mentése
+git stash save "Lokális footer és header módosítások - $(date +%Y-%m-%d)"
+
+# 2. Pull
+git pull origin main
+
+# 3. Változások visszaállítása (ha szükséges)
+git stash list  # Megnézed, mi van elmentve
+git stash pop   # Visszaállítod (lehet konfliktus!)
+
+# Ha konfliktus van, manuálisan feloldod:
+nano resources/views/components/footer.blade.php
+git add resources/views/components/footer.blade.php
+git stash drop
+```
+
+### Megoldás 3: Teljes reset (VESZÉLYES! Minden lokális változás elveszik!)
+
+```bash
+cd ~/backend
+
+# FIGYELEM: Ez törli az ÖSSZES lokális módosítást!
+git fetch origin
+git reset --hard origin/main
+
+# Cache tisztítás
+/usr/bin/php83 artisan optimize:clear
+/usr/bin/php83 artisan optimize
+```
+
+---
+
+## 🔧 LINE ENDING PROBLÉMÁK MEGELŐZÉSE
+
+Ha gyakran látod a "Your local changes would be overwritten" hibát anélkül, hogy módosítottál volna bármit, valószínűleg **line ending (CRLF vs LF)** vagy **whitespace** különbségek okozzák.
+
+### Megoldás: .gitattributes fájl hozzáadása
+
+**A projekt gyökerében hozd létre a `.gitattributes` fájlt (ez már megtörtént a projektben):**
+
+```bash
+# Helyi gépen (Windows):
+cd C:\xampp\htdocs\cateto
+
+# Fájl létrehozása
+cat > .gitattributes << 'EOF'
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# PHP files - always use LF
+*.php text eol=lf
+
+# Blade templates - always use LF
+*.blade.php text eol=lf
+
+# Web files
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.xml text eol=lf
+
+# Config files
+*.yml text eol=lf
+*.yaml text eol=lf
+.env* text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+EOF
+
+# Commit és push
+git add .gitattributes
+git commit -m "Add .gitattributes for consistent line endings"
+git push origin main
+```
+
+**Szerveren ezután:**
+```bash
+cd ~/backend
+git pull origin main
+
+# Git újranormalizálása (opcionális, ha korábbi fájlok rosszak)
+git add --renormalize .
+git status  # Ha mutat változásokat, commit-old
+```
+
+**Ez biztosítja, hogy:**
+- Windows (CRLF) és Linux (LF) között is konzisztens legyen a formátum
+- Git automatikusan LF-re normalizál minden text fájlt
+- Nincs felesleges "phantom" módosítás a szerveroldali pull során
+
+---
+
 ## 📊 KÉPEK/IKONOK FELTÖLTÉSE
 
 Az alábbi mappák tartalma:

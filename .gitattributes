@@ -1,11 +1,42 @@
+# Auto detect text files and perform LF normalization
 * text=auto eol=lf
 
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+# PHP files - always use LF
+*.php text eol=lf diff=php
 
+# Blade templates - always use LF
+*.blade.php text eol=lf diff=html
+
+# Web files
+*.css text eol=lf diff=css
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf diff=markdown
+*.html text eol=lf diff=html
+*.xml text eol=lf
+
+# Config files
+*.yml text eol=lf
+*.yaml text eol=lf
+.env* text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+
+# Export ignore
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
