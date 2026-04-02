@@ -9,8 +9,54 @@
 
     <!-- SEO Meta Tags -->
     <meta name="description" content="@yield('description', 'Portfolio - Technológiai megoldások egyedi igényekre szabva')" />
+    @hasSection('keywords')
+    <meta name="keywords" content="@yield('keywords')" />
+    @endif
     <meta name="author" content="Cateto" />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="{{ url()->current() }}" />
+
+    <!-- Open Graph Meta Tags (Facebook, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="@yield('title', 'Cateto - Portfolio')" />
+    <meta property="og:description" content="@yield('description', 'Portfolio - Technológiai megoldások egyedi igényekre szabva')" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:site_name" content="Cateto" />
+    @hasSection('og_image')
+    <meta property="og:image" content="@yield('og_image')" />
+    @else
+    <meta property="og:image" content="{{ asset('images/og-default.jpg') }}" />
+    @endif
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="@yield('title', 'Cateto - Portfolio')" />
+    <meta name="twitter:description" content="@yield('description', 'Portfolio - Technológiai megoldások egyedi igényekre szabva')" />
+    @hasSection('og_image')
+    <meta name="twitter:image" content="@yield('og_image')" />
+    @else
+    <meta name="twitter:image" content="{{ asset('images/og-default.jpg') }}" />
+    @endif
+
+    <!-- Structured Data (Schema.org JSON-LD) -->
+    @hasSection('schema')
+    @yield('schema')
+    @else
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Cateto",
+        "url": "{{ url('/') }}",
+        "description": "Portfolio - Technológiai megoldások egyedi igényekre szabva",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ url('/') }}?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
+    }
+    </script>
+    @endif
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />

@@ -96,32 +96,32 @@
     <nav>
       <ul class="flex flex-col gap-4">
         <li>
-          <a href="{{ url('/bemutatkozas') }}" class="block py-3 px-4 rounded-lg {{ request()->is('bemutatkozas') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/bemutatkozas') }}" class="block py-3 px-4 rounded-lg {{ request()->is('bemutatkozas') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             Bemutatkozás
           </a>
         </li>
         <li>
-          <a href="{{ url('/unraid') }}" class="block py-3 px-4 rounded-lg {{ request()->is('unraid*') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/unraid') }}" class="block py-3 px-4 rounded-lg {{ request()->is('unraid*') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             unRAID
           </a>
         </li>
         <li>
-          <a href="{{ url('/grafika') }}" class="block py-3 px-4 rounded-lg {{ request()->is('grafika') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/grafika') }}" class="block py-3 px-4 rounded-lg {{ request()->is('grafika') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             Grafikai szemlélet az AI korában
           </a>
         </li>
         <li>
-          <a href="{{ url('/internetes-jelenlet') }}" class="block py-3 px-4 rounded-lg {{ request()->is('internetes-jelenlet') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/internetes-jelenlet') }}" class="block py-3 px-4 rounded-lg {{ request()->is('internetes-jelenlet') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             Internetes jelenlét
           </a>
         </li>
         <li>
-          <a href="{{ url('/ai-jovo') }}" class="block py-3 px-4 rounded-lg {{ request()->is('ai-jovo') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/ai-jovo') }}" class="block py-3 px-4 rounded-lg {{ request()->is('ai-jovo') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             AI a jövő
           </a>
         </li>
         <li>
-          <a href="{{ url('/kapcsolat') }}" class="block py-3 px-4 rounded-lg {{ request()->is('kapcsolat') ? 'bg-accent text-white font-medium' : 'bg-accent/10 text-accent' }} text-center">
+          <a href="{{ url('/kapcsolat') }}" class="block py-3 px-4 rounded-lg {{ request()->is('kapcsolat') ? 'bg-accent text-black font-medium' : 'bg-accent/10 text-accent' }} text-center">
             Kapcsolat
           </a>
         </li>

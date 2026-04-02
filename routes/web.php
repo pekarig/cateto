@@ -2,10 +2,14 @@
 
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\Api\ContactInteractionController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // Főoldal
 Route::get('/', [PageController::class, 'home'])->name('home');
+
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // Contact analytics (POST endpoint session-nel és CSRF-fel)
 Route::post('/api/contact-interaction', [ContactInteractionController::class, 'logInteraction']);

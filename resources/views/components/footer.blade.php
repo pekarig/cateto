@@ -58,7 +58,7 @@ Footer
     </div>
     <div class="border-t border-stroke-1/20 py-8">
       <p class="text-center text-accent/60 text-sm">
-        © 1999 - {{ date('Y') }} Ragnar | Minden jog fenntartva.
+        © 1999 - {{ date('Y') }} Cateto | Minden jog fenntartva.
       </p>
     </div>
   </div>

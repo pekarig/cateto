@@ -2,6 +2,32 @@
 
 @section('title', $page->title)
 @section('description', $page->description)
+@if($page->keywords)
+@section('keywords', $page->keywords)
+@endif
+
+@section('schema')
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "{{ $page->title }}",
+    "description": "{{ $page->description }}",
+    "url": "{{ url()->current() }}",
+    "inLanguage": "hu-HU",
+    "isPartOf": {
+        "@type": "WebSite",
+        "name": "Cateto",
+        "url": "{{ url('/') }}"
+    },
+    "dateModified": "{{ $page->updated_at->toIso8601String() }}",
+    "author": {
+        "@type": "Organization",
+        "name": "Cateto"
+    }
+}
+</script>
+@endsection
 
 @section('content')
 @include('components.header')
