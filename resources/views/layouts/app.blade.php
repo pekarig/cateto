@@ -10,7 +10,9 @@
     <!-- SEO Meta Tags -->
     <meta name="description" content="@yield('description', 'Portfolio - Technológiai megoldások egyedi igényekre szabva')" />
     @hasSection('keywords')
+    @if(trim($__env->yieldContent('keywords')) !== '')
     <meta name="keywords" content="@yield('keywords')" />
+    @endif
     @endif
     <meta name="author" content="Cateto" />
     <meta name="robots" content="index, follow" />

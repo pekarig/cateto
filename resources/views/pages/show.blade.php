@@ -1,125 +1,111 @@
 @extends('layouts.app')
 
 @section('title', $page->title)
-@section('description', $page->description)
-@if($page->keywords)
-@section('keywords', $page->keywords)
-@endif
+@section('description', $page->description ?? '')
+@section('keywords', $page->keywords ?? '')
+
+@php
+    // WebPage Schema
+    $schema = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebPage',
+        'name' => $page->title,
+        'description' => $page->description,
+        'url' => url()->current(),
+        'inLanguage' => 'hu-HU',
+        'isPartOf' => [
+            '@type' => 'WebSite',
+            'name' => 'Cateto',
+            'url' => url('/'),
+        ],
+        'datePublished' => $page->created_at->toIso8601String(),
+        'dateModified' => $page->updated_at->toIso8601String(),
+        'author' => [
+            '@type' => 'Organization',
+            'name' => 'Cateto',
+            'url' => url('/'),
+        ],
+        'publisher' => [
+            '@type' => 'Organization',
+            'name' => 'Cateto',
+            'logo' => [
+                '@type' => 'ImageObject',
+                'url' => asset('images/logo.png'),
+            ],
+        ],
+    ];
+
+    // Breadcrumb hozzáadása
+    if (isset($parent)) {
+        $schema['breadcrumb'] = [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Főoldal', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => $parent->title, 'item' => url('/' . $parent->slug)],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $page->title, 'item' => url()->current()],
+            ],
+        ];
+    } elseif ($page->slug !== 'bemutatkozas') {
+        $schema['breadcrumb'] = [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Főoldal', 'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => $page->title, 'item' => url()->current()],
+            ],
+        ];
+    }
+
+    // ItemList Schema (ha van webServiceItems vagy aiToolItems)
+    $itemListSchema = null;
+    $totalItems = $page->webServiceItems->count() + $page->aiToolItems->count();
+    if ($totalItems > 0) {
+        $itemListElements = [];
+        $position = 1;
+        foreach ($page->webServiceItems as $service) {
+            $item = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'item' => array_filter([
+                    '@type' => 'Service',
+                    'name' => $service->name,
+                    'description' => $service->description,
+                    'provider' => ['@type' => 'Organization', 'name' => 'Cateto'],
+                    'url' => $service->url ?? null,
+                ]),
+            ];
+            $itemListElements[] = $item;
+        }
+        foreach ($page->aiToolItems as $tool) {
+            $item = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'item' => array_filter([
+                    '@type' => 'SoftwareApplication',
+                    'name' => $tool->name,
+                    'description' => $tool->description,
+                    'applicationCategory' => 'AI Tool',
+                    'provider' => ['@type' => 'Organization', 'name' => 'Cateto'],
+                    'url' => $tool->url ?? null,
+                ]),
+            ];
+            $itemListElements[] = $item;
+        }
+        $itemListSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'numberOfItems' => $totalItems,
+            'itemListElement' => $itemListElements,
+        ];
+    }
+@endphp
 
 @section('schema')
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    "name": "{{ $page->title }}",
-    "description": "{{ $page->description }}",
-    "url": "{{ url()->current() }}",
-    "inLanguage": "hu-HU",
-    "isPartOf": {
-        "@type": "WebSite",
-        "name": "Cateto",
-        "url": "{{ url('/') }}"
-    },
-    "datePublished": "{{ $page->created_at->toIso8601String() }}",
-    "dateModified": "{{ $page->updated_at->toIso8601String() }}",
-    "author": {
-        "@type": "Organization",
-        "name": "Cateto",
-        "url": "{{ url('/') }}"
-    },
-    "publisher": {
-        "@type": "Organization",
-        "name": "Cateto",
-        "logo": {
-            "@type": "ImageObject",
-            "url": "{{ asset('images/logo.png') }}"
-        }
-    }@if(isset($parent)),
-    "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Főoldal",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $parent->title }}",
-                "item": "{{ url('/' . $parent->slug) }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 3,
-                "name": "{{ $page->title }}",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    }@elseif($page->slug !== 'bemutatkozas'),
-    "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-            {
-                "@type": "ListItem",
-                "position": 1,
-                "name": "Főoldal",
-                "item": "{{ url('/') }}"
-            },
-            {
-                "@type": "ListItem",
-                "position": 2,
-                "name": "{{ $page->title }}",
-                "item": "{{ url()->current() }}"
-            }
-        ]
-    }@endif
-}
+{!! json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
-
-@if($page->webServiceItems->isNotEmpty() || $page->aiToolItems->isNotEmpty())
+@if($itemListSchema)
 <script type="application/ld+json">
-{
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    "numberOfItems": {{ $page->webServiceItems->count() + $page->aiToolItems->count() }},
-    "itemListElement": [
-        @foreach($page->webServiceItems as $index => $service)
-        {
-            "@type": "ListItem",
-            "position": {{ $index + 1 }},
-            "item": {
-                "@type": "Service",
-                "name": "{{ $service->name }}",
-                "description": "{{ $service->description }}",
-                "provider": {
-                    "@type": "Organization",
-                    "name": "Cateto"
-                }@if($service->url),
-                "url": "{{ $service->url }}"@endif
-            }
-        }@if(!$loop->last || $page->aiToolItems->isNotEmpty()),@endif
-        @endforeach
-        @foreach($page->aiToolItems as $index => $tool)
-        {
-            "@type": "ListItem",
-            "position": {{ $page->webServiceItems->count() + $index + 1 }},
-            "item": {
-                "@type": "SoftwareApplication",
-                "name": "{{ $tool->name }}",
-                "description": "{{ $tool->description }}",
-                "applicationCategory": "AI Tool",
-                "provider": {
-                    "@type": "Organization",
-                    "name": "Cateto"
-                }@if($tool->url),
-                "url": "{{ $tool->url }}"@endif
-            }
-        }@if(!$loop->last),@endif
-        @endforeach
-    ]
-}
+{!! json_encode($itemListSchema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
 </script>
 @endif
 @endsection
