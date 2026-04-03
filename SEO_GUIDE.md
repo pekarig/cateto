@@ -133,35 +133,55 @@ Search Console → Settings → robots.txt Tester
 
 ## ⚙️ SEO Konfiguráció Használata
 
-### 1. Environment változók (.env):
+### 1. Environment változók (.env) - Teljes SEO template:
 ```env
-# Site alapadatok
+# ============================================================================
+# SEO Configuration
+# ============================================================================
 SEO_SITE_NAME="Cateto"
 SEO_SITE_DESCRIPTION="Portfolio - Technológiai megoldások egyedi igényekre szabva"
+SEO_AUTHOR="Cateto"
+SEO_ROBOTS="index, follow"
+SEO_OG_IMAGE="/images/og-default.jpg"
 
-# Organization
+# ============================================================================
+# Organization Schema.org - JSON-LD adatok
+# ============================================================================
 ORG_NAME="Cateto"
 ORG_LEGAL_NAME="Cateto Kft."
 ORG_DESCRIPTION="Webes megoldások, AI integráció és grafikai szolgáltatások"
-ORG_FOUNDED=1999
+ORG_FOUNDED="1999"
+
+# Kapcsolati információk
 ORG_EMAIL="info@cateto.hu"
 ORG_PHONE="+36 1 234 5678"
 
-# Address
-ORG_ADDRESS_STREET="Példa utca 123."
+# Cím (Organization address)
+ORG_ADDRESS_STREET="Cím utca 123."
 ORG_ADDRESS_CITY="Budapest"
-ORG_ADDRESS_POSTAL="1234"
+ORG_ADDRESS_POSTAL="1000"
 ORG_ADDRESS_COUNTRY="HU"
 
-# Social Media
+# Social Media (mindegyik opcionális)
 SOCIAL_FACEBOOK="https://facebook.com/cateto"
+SOCIAL_TWITTER="https://twitter.com/cateto"
 SOCIAL_LINKEDIN="https://linkedin.com/company/cateto"
-SOCIAL_GITHUB="https://github.com/cateto"
+SOCIAL_INSTAGRAM="https://instagram.com/cateto"
+SOCIAL_YOUTUBE="https://youtube.com/@cateto"
+SOCIAL_GITHUB="https://github.com/pekarig"
 
-# Google Services
-GOOGLE_ANALYTICS_ID="G-XXXXXXXXXX"
-GOOGLE_TAG_MANAGER_ID="GTM-XXXXXXX"
-GOOGLE_SITE_VERIFICATION="your-verification-code"
+# ============================================================================
+# Google Analytics & Search Services
+# ============================================================================
+GOOGLE_ANALYTICS_ID="G-5XE7B1ZTXC"
+GOOGLE_TAG_MANAGER_ID=null
+GOOGLE_SITE_VERIFICATION=null
+
+# ============================================================================
+# Sitemap Configuration
+# ============================================================================
+SITEMAP_CACHE=true
+SITEMAP_CACHE_DURATION=3600
 ```
 
 ### 2. Config fájl használata:
