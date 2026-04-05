@@ -113,17 +113,19 @@
 @section('content')
 @include('components.header')
 
-<main>
-    @php
-        // Hero section alapján a slug-ból
-        $heroComponent = 'components.heroes.' . $page->slug;
-    @endphp
+@php
+    // Hero section alapján a slug-ból
+    $heroComponent = 'components.heroes.' . $page->slug;
+@endphp
+
+<div class="@if(!view()->exists($heroComponent)) pt-16 md:pt-20 lg:pt-28 @endif">
     @if(view()->exists($heroComponent))
         @include($heroComponent)
     @endif
 
-    <!-- Tartalom blokkok renderelése -->
-    @if($page->contentBlocks->isNotEmpty())
+    <main>
+        <!-- Tartalom blokkok renderelése -->
+        @if($page->contentBlocks->isNotEmpty())
         <section class="py-16 md:py-20 lg:py-28">
             <div class="main-container">
                 <div class="space-y-16 md:space-y-20 lg:space-y-28">
@@ -160,7 +162,8 @@
             </div>
         </div>
     @endif
-</main>
+    </main>
+</div>
 
 @include('components.footer')
 @endsection
